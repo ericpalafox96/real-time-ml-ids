@@ -1,0 +1,4 @@
+- Input: pcap file (offline first)
+- Ouput: features.csv (one row per time window)
+- Constraints: deterministic, fast, small memory
+- Definition of done (Milestone 1): "Given a pcap, I can extract windowed features and plot packet rate"
