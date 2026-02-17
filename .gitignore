@@ -1,0 +1,5 @@
+captures/*.pcap
+captures/*.pcapng
+outputs/*.csv
+__pycache__/
+*.pyc
