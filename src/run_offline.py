@@ -39,6 +39,22 @@ def main():
     # 3) features
     features_df = compute_window_features(df)
 
+    # baseline stats
+    print("\n=== Baseline Stats ===")
+    print("Mean pkt_count:", features_df["pkt_count"].mean())
+    print("Max pkt_count:", features_df["pkt_count"].max())
+    print("99th percentile pkt_count:", features_df["pkt_count"].quantile(0.99))
+    print("Mean mean_itt:", features_df["mean_itt"].mean())
+    print("Mean entropy:", features_df["pkt_size_entropy"].mean())
+
+    threshold = features_df["pkt_count"].quantile(0.99)
+    alerts = features_df[features_df["pkt_count"] > threshold]
+
+    print("\n=== Baseline Threshold Detector ===")
+    print(f"Threshold (99th percentile): {threshold}")
+    print(f"Flagged windows: {len(alerts)}")
+    print(alerts[["window_id", "pkt_count"]])
+
     # 4) validate
     validate_features(features_df)
 
