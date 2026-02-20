@@ -26,9 +26,16 @@ def compute_window_features(df):
             # TCP derived features (safe checks)
             "tcp_syn_rate": float(g["tcp_flags"].str.contains("S", na=False).sum()) / len(g) if "tcp_flags" in g else 0.0,
             "tcp_rst_rate": float(g["tcp_flags"].str.contains("R", na=False).sum()) / len(g) if "tcp_flags" in g else 0.0,
+            "dup_size_ratio": duplicate_size_ratio(g),
         }
         rows.append(row)
     features_df = pd.DataFrame(rows).sort_values("window_id").reset_index(drop=True)
     # save
-    features_df.to_csv("../outputs/features.csv", index=False)
+    features_df.to_csv("outputs/features_replay.csv", index=False)
     return features_df
+
+def duplicate_size_ratio(g):
+    counts = g["length"].value_counts()
+    if len(counts) == 0:
+        return 0.0
+    return counts.iloc[0] / len(g)
