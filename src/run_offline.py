@@ -50,6 +50,7 @@ def main():
     threshold = features_df["pkt_count"].quantile(0.99)
     alerts = features_df[features_df["pkt_count"] > threshold]
 
+    # baseline threshold detector
     print("\n=== Baseline Threshold Detector ===")
     print(f"Threshold (99th percentile): {threshold}")
     print(f"Flagged windows: {len(alerts)}")

@@ -27,6 +27,8 @@ def compute_window_features(df):
             "tcp_syn_rate": float(g["tcp_flags"].str.contains("S", na=False).sum()) / len(g) if "tcp_flags" in g else 0.0,
             "tcp_rst_rate": float(g["tcp_flags"].str.contains("R", na=False).sum()) / len(g) if "tcp_flags" in g else 0.0,
             "dup_size_ratio": duplicate_size_ratio(g),
+            "dominant_flow_ratio": dominant_flow_ratio(g),
+            "unique_flow_count": unique_flow_count(g)
         }
         rows.append(row)
     features_df = pd.DataFrame(rows).sort_values("window_id").reset_index(drop=True)
@@ -39,3 +41,20 @@ def duplicate_size_ratio(g):
     if len(counts) == 0:
         return 0.0
     return counts.iloc[0] / len(g)
+
+def dominant_flow_ratio(g):
+    cols = ["src_ip", "dst_ip", "src_port", "dst_port", "l4_proto"]
+    if not all(c in g.columns for c in cols):
+        return 0.0
+    flows = g[cols].fillna("NA").astype(str).agg("|".join, axis=1)
+    vc = flows.value_counts()
+    if len(vc) == 0:
+        return 0.0
+    return float(vc.iloc[0] / len(g))
+
+def unique_flow_count(g):
+    cols = ["src_ip", "dst_ip", "src_port", "dst_port", "l4_proto"]
+    if not all(c in g.columns for c in cols):
+        return 0
+    flows = g[cols].fillna("NA").astype(str).agg("|".join, axis=1)
+    return int(flows.nunique())

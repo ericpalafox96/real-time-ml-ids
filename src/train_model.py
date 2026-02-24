@@ -15,7 +15,7 @@ def main():
     df = pd.read_csv(args.data)
 
     y = df["label"].astype(int)
-    X = df.drop(columns=["label"])
+    X = df.drop(columns=["label", "window_id"])  # drop non-feature columns
 
     # Train/test split stratified
     X_train, X_test, y_train, y_test = train_test_split(
@@ -30,10 +30,23 @@ def main():
     model.fit(X_train, y_train)
     y_pred = model.predict(X_test)
 
+    importances = model.feature_importances_
+    features = X.columns
+
+    print("\nFeature Importances:")
+    for f, imp in sorted(zip(features, importances), key=lambda x: x[1], reverse=True):
+        print(f"{f}: {imp:.4f}")
+
     print("\nConfusion Matrix:")
     print(confusion_matrix(y_test, y_pred))
     print("\nReport:")
     print(classification_report(y_test, y_pred, digits=4))
+
+    from sklearn.model_selection import cross_val_score
+
+    scores = cross_val_score(model, X, y, cv=5)
+    print("\nCross-Validation Accuracy:", scores.mean())
+    print("Scores:", scores)
 
 if __name__ == "__main__":
     main()
